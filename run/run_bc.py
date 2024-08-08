@@ -63,10 +63,12 @@ def train_model():
     model = BC(dim_obs=state_dim)
     step_num = 20000
     batch_size = 100
+    log_step = 100  # b4, 2024.08.09
     for i in range(step_num):
         states, actions, _, _, _ = replay_buffer.sample(batch_size)
         a_loss = model.step(states, actions)
-        logger.info(f"Step: {i} Action loss: {np.mean(a_loss)}")
+        if (i+1) % log_step == 0:
+            logger.info(f"Step: {i} Action loss: {np.mean(a_loss)}")
 
     # model.save_net("saved_model/BCtest")
     model.save_jit("saved_model/BCtest")
@@ -86,7 +88,13 @@ def load_model():
 
 def add_to_replay_buffer(replay_buffer, training_data, is_normalize):
     for row in training_data.itertuples():
-        state, action, reward, next_state, done = row.state if not is_normalize else row.normalize_state, row.action, row.reward if not is_normalize else row.normalize_reward, row.next_state if not is_normalize else row.normalize_nextstate, row.done
+        state, action, reward, next_state, done = (
+            row.state if not is_normalize else row.normalize_state, 
+            row.action, 
+            row.reward if not is_normalize else row.normalize_reward, 
+            row.next_state if not is_normalize else row.normalize_nextstate, 
+            row.done
+        )
         # ! 去掉了所有的done==1的数据
         if done != 1:
             replay_buffer.push(np.array(state), np.array([action]), np.array([reward]), np.array(next_state),

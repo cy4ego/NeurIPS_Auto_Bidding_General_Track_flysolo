@@ -38,12 +38,8 @@ def normalize_state(training_data, state_dim, normalize_indices):
         if int(state_col.replace('state', '')) in normalize_indices:
             min_val = stats[int(state_col.replace('state', ''))]['min']
             max_val = stats[int(state_col.replace('state', ''))]['max']
-            training_data[f'normalize_{state_col}'] = (
-                                                              training_data[state_col] - min_val) / (
-                                                              max_val - min_val + 0.01)
-            training_data[f'normalize_{next_state_col}'] = (
-                                                                   training_data[next_state_col] - min_val) / (
-                                                                   max_val - min_val + 0.01)
+            training_data[f'normalize_{state_col}'] = (training_data[state_col] - min_val) / (max_val - min_val + 0.01)
+            training_data[f'normalize_{next_state_col}'] = (training_data[next_state_col] - min_val) / (max_val - min_val + 0.01)
             # 0.01 error too large?
         else:
             training_data[f'normalize_{state_col}'] = training_data[state_col]
@@ -69,9 +65,7 @@ def normalize_reward(training_data, reward_type):
         A Series of normalized rewards.
     """
     reward_range = training_data[reward_type].max() - training_data[reward_type].min() + 0.00000001
-    training_data["normalize_reward"] = (
-                                                training_data[reward_type] - training_data[
-                                            reward_type].min()) / reward_range
+    training_data["normalize_reward"] = (training_data[reward_type] - training_data[reward_type].min()) / reward_range
     return training_data["normalize_reward"]
 
 
