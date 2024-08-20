@@ -72,10 +72,12 @@ def add_to_replay_buffer(replay_buffer, training_data, is_normalize):
 
 
 def train_model_steps(model, replay_buffer, step_num=20000, batch_size=100):
+    log_step = 100
     for i in range(step_num):
         states, actions, rewards, next_states, terminals = replay_buffer.sample(batch_size)
         q_loss, v_loss, a_loss = model.step(states, actions, rewards, next_states, terminals)
-        logger.info(f'Step: {i} Q_loss: {q_loss} V_loss: {v_loss} A_loss: {a_loss}')
+        if (i+1) % log_step == 0:
+            logger.info(f'Step: {i} Q_loss: {q_loss} V_loss: {v_loss} A_loss: {a_loss}')
 
 
 def test_trained_model(model, replay_buffer):

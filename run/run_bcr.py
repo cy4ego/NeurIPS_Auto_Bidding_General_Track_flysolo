@@ -3,7 +3,7 @@ import torch
 import pandas as pd
 from bidding_train_env.common.utils import normalize_state, normalize_reward, save_normalize_dict
 from bidding_train_env.baseline.iql.replay_buffer import ReplayBuffer
-from bidding_train_env.baseline.bc.behavior_clone import BC
+from bidding_train_env.baseline.bcr.behavior_cloning_residual import BCR
 import logging
 import ast
 
@@ -17,7 +17,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-def run_bc():
+def run_bcr():
     """
     Run bc model training and evaluation.
     """
@@ -27,7 +27,7 @@ def run_bc():
 
 def train_model():
     """
-    train BC model
+    train BCR model
     """
 
     train_data_path = "./data/traffic/training_data_rlData_folder/training_data_all-rlData.csv"
@@ -52,14 +52,14 @@ def train_model():
 
     normalize_dic = normalize_state(training_data, state_dim, normalize_indices)
     normalize_reward(training_data, "reward_continuous")
-    save_normalize_dict(normalize_dic, "saved_model/BCtest")
+    save_normalize_dict(normalize_dic, "saved_model/BCRtest")
 
     replay_buffer = ReplayBuffer()
     add_to_replay_buffer(replay_buffer, training_data, is_normalize)
 
     logger.info(f"Replay buffer size: {len(replay_buffer.memory)}")
 
-    model = BC(dim_obs=state_dim)
+    model = BCR(dim_obs=state_dim)
     step_num = 20000
     batch_size = 100
     log_step = 100  # b4, 2024.08.09
@@ -69,8 +69,8 @@ def train_model():
         if (i+1) % log_step == 0:
             logger.info(f"Step: {i} Action loss: {np.mean(a_loss)}")
 
-    # model.save_net("saved_model/BCtest")
-    model.save_jit("saved_model/BCtest")
+    # model.save_net("saved_model/BCRtest")
+    model.save_jit("saved_model/BCRtest")
     test_trained_model(model, replay_buffer)
 
 
@@ -78,8 +78,8 @@ def load_model():
     """
     load model
     """
-    model = BC(dim_obs=16)
-    model.load_net("saved_model/BCtest")
+    model = BCR(dim_obs=16)
+    model.load_net("saved_model/BCRtest")
     test_state = np.ones(16, dtype=np.float32)
     test_state_tensor = torch.tensor(test_state, dtype=torch.float)
     logger.info(f"Test action: {model.take_actions(test_state_tensor)}")
@@ -112,4 +112,4 @@ def test_trained_model(model, replay_buffer):
 
 
 if __name__ == "__main__":
-    run_bc()
+    run_bcr()

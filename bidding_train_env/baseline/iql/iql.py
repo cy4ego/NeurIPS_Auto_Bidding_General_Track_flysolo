@@ -126,7 +126,8 @@ class IQL(nn.Module):
         self.critic2_optimizer = Adam(self.critic2.parameters(), lr=self.critic_lr)
         self.actor_optimizer = Adam(self.actors.parameters(), lr=self.actor_lr)
         self.deterministic_action = True
-        self.use_cuda = torch.cuda.is_available()
+        # B4, 2024.08.09, use cpu only, move parameters of step() to cuda if you want to use it.
+        self.use_cuda = False  # torch.cuda.is_available()
         if self.use_cuda:
             self.critic1.cuda()
             self.critic2.cuda()
